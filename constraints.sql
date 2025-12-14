@@ -1,6 +1,3 @@
-ALTER TABLE participations 
-	ADD CONSTRAINT unique_team_tournament UNIQUE (team_id, tournament_id);
-
 ALTER TABLE match_teams
 	ADD CONSTRAINT unique_match_role UNIQUE (match_id, role);
 
