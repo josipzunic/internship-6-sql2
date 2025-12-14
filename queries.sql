@@ -3,7 +3,7 @@ EXPLAIN ANALYZE
 SELECT t.tournament_name, t.tournament_year, t.tournament_city, tm.team_name AS winner FROM tournaments t
 JOIN winners w ON w.tournament_id = t.tournament_id
 JOIN teams tm ON tm.team_id = w.team_id;
-
+-- without index 3.197 ms 
 
 EXPLAIN ANALYZE
 SELECT t.tournament_name, tm.team_name, tm.team_representative
@@ -11,6 +11,7 @@ FROM tournaments t
 JOIN participations p ON p.tournament_id = t.tournament_id
 JOIN teams tm ON tm.team_id = p.team_id
 ORDER BY t.tournament_name, tm.team_name;
+--without index 7.818 ms 
 
 
 EXPLAIN ANALYZE
@@ -19,6 +20,7 @@ FROM players p
 JOIN teams tm ON tm.team_id = p.team_id
 WHERE tm.team_id = 5
 ORDER BY p.player_surname, p.player_name;
+--without index 19.782 ms with index 2.217 ms 
 
 
 EXPLAIN ANALYZE
@@ -39,7 +41,7 @@ LEFT JOIN match_teams mg ON mg.match_id = m.match_id AND mg.role = 'guest'
 LEFT JOIN teams tg ON tg.team_id = mg.team_id
 WHERE m.tournament_id = 5
 ORDER BY m.match_date;
-
+--without index 3.050 ms with index 6.256 ms 
 
 EXPLAIN ANALYZE
 SELECT
@@ -59,6 +61,7 @@ JOIN match_types mt ON mt.match_type_id = m.match_type_id
 JOIN tournaments tr ON tr.tournament_id = m.tournament_id
 WHERE mh.team_id = 5 OR mg.team_id = 5
 ORDER BY m.match_date;
+--without index 2.636 ms with index 2.554 ms 
 
 
 EXPLAIN ANALYZE
@@ -79,6 +82,7 @@ JOIN tournaments t ON t.tournament_id = m.tournament_id
 WHERE et.event_type IN ('yellow card', 'red card')
   AND t.tournament_id = 5
 ORDER BY m.match_id, e.minute;
+--without index 1.135 with index 2.701 ms 
 
 EXPLAIN ANALYZE
 SELECT p.player_name, p.player_surname, tm.team_name, COUNT(*) AS goals FROM events e
@@ -90,6 +94,7 @@ WHERE et.event_type = 'goal'
   AND m.tournament_id = 5
 GROUP BY p.player_id, tm.team_name
 ORDER BY goals DESC, p.player_surname, p.player_name;
+--without index 6.415 ms with index 2.191 ms 
 
 EXPLAIN ANALYZE
 SELECT t.tournament_name, m.match_date,
@@ -111,6 +116,7 @@ LEFT JOIN match_teams mg ON mg.match_id = m.match_id AND mg.role = 'guest'
 LEFT JOIN teams tg ON tg.team_id = mg.team_id
 WHERE mt.match_type = 'finals'
 ORDER BY m.match_date;
+--without index 6.070 ms with index 4.177 ms
 
 EXPLAIN ANALYZE
 SELECT mt.match_type, COUNT(m.match_id) AS number_of_matches
@@ -118,6 +124,7 @@ FROM match_types mt
 LEFT JOIN matches m ON m.match_type_id = mt.match_type_id
 GROUP BY mt.match_type
 ORDER BY mt.match_type;
+--without index 1.112 ms
 
 EXPLAIN ANALYZE
 SELECT m.match_date, th.team_name AS home_team, m.home_goals, tg.team_name AS guest_team,
@@ -130,6 +137,7 @@ LEFT JOIN match_teams mg ON mg.match_id = m.match_id AND mg.role = 'guest'
 LEFT JOIN teams tg ON tg.team_id = mg.team_id
 WHERE m.match_date = '2011-11-04'
 ORDER BY m.match_id;
+--without index 0.274 with index 0.647 ms 
 
 EXPLAIN ANALYZE
 SELECT p.player_name, p.player_surname, tm.team_name, COUNT(*) AS goals FROM events e
@@ -141,17 +149,20 @@ WHERE et.event_type = 'goal'
   AND m.tournament_id = 5
 GROUP BY p.player_id, tm.team_name
 ORDER BY goals DESC, p.player_surname, p.player_name;
+--without index 1.466 ms with index 0.813 ms 
 
 EXPLAIN ANALYZE
 SELECT t.tournament_name, t.tournament_year, p.placement FROM participations p
 JOIN tournaments t ON t.tournament_id = p.tournament_id
 WHERE p.team_id = 5
 ORDER BY t.tournament_year;
+--without index 0.246 ms with index 0.133 ms
 
 EXPLAIN ANALYZE
 SELECT t.tournament_name, t.tournament_year, tm.team_name AS winner FROM winners w
 JOIN tournaments t ON t.tournament_id = w.tournament_id
 JOIN teams tm ON tm.team_id = w.team_id
+--without index 1.124
 
 EXPLAIN ANALYZE
 SELECT t.tournament_name, t.tournament_year, COUNT(DISTINCT p.team_id) AS number_of_teams, 
@@ -161,6 +172,7 @@ LEFT JOIN participations p ON p.tournament_id = t.tournament_id
 LEFT JOIN players pl ON pl.team_id = p.team_id
 GROUP BY t.tournament_id
 ORDER BY t.tournament_year;
+--without index 29.034 ms with index 29.639 ms
 
 EXPLAIN ANALYZE
 WITH team_goals AS (
@@ -191,7 +203,9 @@ FROM ranked_goals rg
 JOIN teams t ON t.team_id = rg.team_id
 WHERE rg.rn = 1
 ORDER BY t.team_name;
+--without index 9.638 ms with index 16.226 ms
 
+EXPLAIN ANALYZE
 SELECT
   m.match_date,
   t.tournament_name,
@@ -210,3 +224,4 @@ LEFT JOIN match_teams mg ON mg.match_id = m.match_id AND mg.role = 'guest'
 LEFT JOIN teams tg ON tg.team_id = mg.team_id
 WHERE r.referee_id = 5
 ORDER BY m.match_date;
+--without index 0.651 ms with index 2.644 ms
